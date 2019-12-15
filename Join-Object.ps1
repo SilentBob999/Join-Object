@@ -33,8 +33,18 @@ function Join-Object {
     .PARAMETER RightJoinProperty
         Property on Right collection objects that we match up with LeftJoinProperty on the Left collection
 
+    .PARAMETER LeftJoinScript
+        Overwrite LeftJoinProperty. The delegate which defines the string to compare against right.
+            eg : LeftJoinScript         = { param ($Line) ($Line.Sub).Replace('S', '') }
+            eg : LeftJoinScript         = { param ($x) "$($x.id) - $($x.name)" }
+    .PARAMETER RightJoinScript
+        Overwrite RightJoinProperty. The delegate which defines the string to compare against left.
+            eg : RightJoinScript        = { param ($Line) ($Line.Sub).Replace('S', '') }
+            eg : RightJoinScript        = { param ($x) "$($x.id) - $($x.name)" }
+
     .PARAMETER LeftProperties
         One or more properties to keep from Left.  Default is to keep all Left properties (*).
+        Hint: This is the place to filter to gain execution speed
 
         Each property can:
             - Be a plain property name like "Name"
@@ -48,6 +58,7 @@ function Join-Object {
 
     .PARAMETER RightProperties
         One or more properties to keep from Right.  Default is to keep all Right properties (*).
+        Hint: This is the place to filter to gain execution speed
 
         Each property can:
             - Be a plain property name like "Name"
@@ -58,6 +69,12 @@ function Join-Object {
 
                  Alternatively, use the Suffix or Prefix parameter to avoid collisions
                  Each property using this Hashtable syntax will be excluded from suffixes and prefixes
+
+    .PARAMETER ExcludeLeftProperties
+        One or more properties to remove from Left. Default is None.
+
+    .PARAMETER ExcludeRightProperties
+        One or more properties to remove from Rigth. Default is None.
 
     .PARAMETER Prefix
         If specified, prepend Right object property names with this prefix to avoid collisions
@@ -93,6 +110,24 @@ function Join-Object {
           in right with at least one match in left, followed by all entries in Right with no matches in left,
           followed by all entries in Left with no matches in Right.
           SQL equivalent: full join
+
+    .PARAMETER KeepRightJoinProperty
+        [switch], self explanatory, to combine with Prefix/Suffix. Usefull with type AllInBoth.
+
+    .PARAMETER AddKey
+        Can be used with "-Type AllInBoth" to add a column containing the joining key.
+
+    .PARAMETER PassThru
+        [switch], If added changes the original Left Object.
+
+    .PARAMETER DataTable
+        Parameter to output as "DataTable".
+
+    .PARAMETER AllowColumnsMerging
+        Allow duplicate columns in the Left and Right Objects, will overwrite the conflicting Left data with the Right data (Ignoring Nulls), Supported only on DataTable output for now.
+
+    .PARAMETER Comparer
+        Allow use of custom [EqualityComparer].
 
     .EXAMPLE
         #
